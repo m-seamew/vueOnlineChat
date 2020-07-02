@@ -1,0 +1,38 @@
+//@import "bs/variables";
+//@import "site/variables";
+
+@import "site/mixins/mixins";
+@import "site/index.scss";
+
+/*
+.card__img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}*/
+
+.user__followers{
+  display: flex !important;
+    width: 100% !important;
+}
+
+.message__photo-container{
+  width: 50px;
+  height: 50px;
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+.message__photo{
+
+  object-fit: contain;
+
+}
+
+.message__header{
+  display: flex;
+  align-items: center;
+}
+.message__nick{
+    margin-bottom: .0rem!important;
+    margin-left: 20px;
+}

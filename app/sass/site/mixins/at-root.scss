@@ -1,0 +1,11 @@
+@mixin at-root($selector) {
+  @at-root #{$selector} #{&} {
+    @content;
+  }
+}
+
+/*
+@include at-root('$selector') {
+  color: blue;
+}
+*/

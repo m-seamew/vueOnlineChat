@@ -1,0 +1,24 @@
+//$n - line counter
+//$lh - text line-height
+
+@mixin truncate($n, $lh) {
+  @if $n == 1 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    line-height: $lh;
+  } @else {
+    display: -webkit-box;
+    display: -moz-box;
+    display: box;
+    -webkit-line-clamp: $n;
+    -moz-line-clamp: $n;
+    line-clamp: $n;
+    -webkit-box-orient: vertical;
+    -moz-box-orient: vertical;
+    box-orient: vertical;
+    overflow: hidden;
+    line-height: $lh;
+    height: $lh * $n;
+  }
+}
