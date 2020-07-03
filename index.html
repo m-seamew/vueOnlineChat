@@ -3,59 +3,66 @@
 <html lang="en">
 
 <head>
-  <title>Vue School Chat Room</title>
-  <script src="https://vuejs.org/js/vue.js"></script>
+  <title>Online Chat Room</title>
+
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://unpkg.com/native-toast@1.2.1/dist/native-toast.css">
   <script src="https://unpkg.com/native-toast@1.2.1/dist/native-toast.js"></script>
   <link rel="stylesheet" href="./build/css/main.css">
+
+  <!-- Vue -->
+  <script src="https://vuejs.org/js/vue.js"></script>
+
+  <!-- Firebase-->
+  <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.15.4/firebase-auth.js"></script>
 </head>
 
 <body>
-
   <div id="app" class="container" >
     <chat-module> 
     </chat-module>
   </div>
 
 
-
   <script type="text/x-template" id="chat-main-template">
-  <div class="vue-container">
-    <div v-for="message in messages" class="card">
+    <div class="vue-container">
+      <div v-for="message in messages" class="card">
 
-      <div class="card-body">
-        <div class="message__header">
-          <div class="message__photo-container">
-          <img :src="message.photo" alt="photo" class="message__photo">          
-          </div> 
+        <div class="card-body">
+          <div class="message__header">
+            <div class="message__photo-container">
+              <img :src="message.photo" alt="photo" class="message__photo">          
+            </div> 
+            <h6 class="card-subtitle mb-2 text-muted message__nick">{{ message.nickname }}</h6>
+          </div>
+          <p v-if="editingMessage !== message" class="card-text">{{ message.text }}</p>
+          <textarea v-else v-model="messageText" class="form-control"></textarea>
 
-        <h6 class="card-subtitle mb-2 text-muted message__nick">{{ message.nickname }}</h6>
-      </div>
-        <p v-if="editingMessage !== message" class="card-text">{{ message.text }}</p>
-        <textarea v-else v-model="messageText" class="form-control"></textarea>
-
-      <div v-if="message !== commentingMessage">
-          <a v-if="message!== editingMessage" @click.prevent="commentMessage(message)" href="#" class="card-link">Comment</a>
-      </div>
-      <div v-else>
-        <textarea v-model="messageCommentText" class="form-control" placeholder="Write your comment"></textarea>
-        <a  @click.prevent="sendCommentMessage(message)" href="#" class="card-link">Send</a>
-        <a  @click.prevent="cancelCommentMessage" href="#" class="card-link">Canceling</a>
-      </div>
+          <div v-if="message !== commentingMessage">
+            <a v-if="message !== editingMessage" @click.prevent="commentMessage(message)" href="#" class="card-link">Comment</a>
+          </div>
+          <div v-else>
+            <textarea v-model="messageCommentText" class="form-control" placeholder="Write your comment"></textarea>
+            <a  @click.prevent="sendCommentMessage(message)" href="#" class="card-link">Send</a>
+            <a  @click.prevent="cancelCommentMessage" href="#" class="card-link">Canceling</a>
+          </div>
       
-      <div v-if="!message.deleted">
-      <div v-if="message !== editingMessage && userData">
-          <a v-if="userData.providerData[0].uid == message.token" @click.prevent="deleteMessage(message)" href="#" class="card-link">Delete</a>
-          <a v-if="userData.providerData[0].uid == message.token" @click.prevent="editMessage(message)" href="#" class="card-link">Edit</a>
-      </div>
-      <div v-else-if="userData">
-          <a v-if="userData.providerData[0].uid == message.token" @click.prevent="updateMessage" href="#" class="card-link">Update</a>
-          <a v-if="userData.providerData[0].uid == message.token" @click.prevent="cancelMessage" href="#" class="card-link">Canceling</a>
-      </div>
-     </div> 
+          <div v-if="!message.deleted">
+            <div v-if="message !== editingMessage && userData">
+              <a v-if="userData.providerData[0].uid == message.token" @click.prevent="deleteMessage(message)" href="#" class="card-link">Delete</a>
+              <a v-if="userData.providerData[0].uid == message.token" @click.prevent="editMessage(message)" href="#" class="card-link">Edit</a>
+          </div>
+          <div v-else-if="userData">
+              <a v-if="userData.providerData[0].uid == message.token" @click.prevent="updateMessage" href="#" class="card-link">Update</a>
+              <a v-if="userData.providerData[0].uid == message.token" @click.prevent="cancelMessage" href="#" class="card-link">Canceling</a>
+          </div>
+        </div> 
 
+        <!-- Render comments -->
         <div v-for="comment in message.comments" class="card">
+
           <div class="card-body">
             <div class="message__header">
               <div class="message__photo-container">
@@ -81,16 +88,15 @@
     </div>
 
     <hr>
-
-    <form v-if="!editingMessage && userData" @submit.prevent="storeMessage">
-
-      <div class="form-group">
-        <label>Message:</label>
-        <textarea v-model="messageText" class="form-control"></textarea>
-      </div>
-      <button class="btn btn-primary">Send</button>
-
-    </form>
+    <div class="input-field">
+      <form v-if="!editingMessage && userData" @submit.prevent="storeMessage">
+        <div class="form-group">
+          <label>Message:</label>
+          <textarea v-model="messageText" class="form-control"></textarea>
+        </div>
+        <button class="btn btn-primary">Send</button>
+      </form>
+    </div>
   </div>
   </script>
 
@@ -102,8 +108,7 @@
         <img v-if="linkedGoogle" src="https://www.gstatic.com/mobilesdk/160512_mobilesdk/auth_service_google.svg" alt="">
         <img v-if="linkedPasword" src="https://www.gstatic.com/mobilesdk/160409_mobilesdk/images/auth_service_email.svg" alt="">
         -->
-      </h2>
-      
+      </h2> 
       <img :src="authUser.photoURL" height="50">
       <button @click="signOut">Sign Out</button>
        <!--
@@ -117,7 +122,7 @@
         <input type="text" v-model='userPhoto' placeholder="Add link to your photo">
         <button>Submit</button>
       -->
-    <!-- Change pass/email for 
+      <!-- Change pass/email for 
       <form @submit.prevent="changeEmail">
         <h4>Update Email</h4>
         <input type="email" v-model='email'  placeholder="Input your newEmail">
@@ -131,34 +136,32 @@
       </form>
       -->
     </div>
-
     <div v-else>
       <!-- Form for registration using email. Worked but not need now, maybe feat for future -->
       <!--
        <form @submit.prevent="register">
-     <h2>Register</h2>
-     <input type="email" v-model="email" placeholder="Type your email">
-     <input type="password" v-model="password" placeholder="Type your password">
-     <button>Register</button>
-     </form>
+      <h2>Register</h2>
+      <input type="email" v-model="email" placeholder="Type your email">
+      <input type="password" v-model="password" placeholder="Type your password">
+      <button>Register</button>
+      </form>
       -->
 
-          <!-- Login by email -->
-       <!--  
-     <form @submit.prevent="login">
-
-    
+      <!-- Login by email -->
+      <!--  
+      <form @submit.prevent="login">
       <h2>Sign In</h2>
-     <input type="email" v-model="email" placeholder="Type your email">
-     <input type="password" v-model="password" placeholder="Type your password">
-     <button>Sing In</button>
-     -->
-     <h2>Login with Facebook</h2>
-     <button @click="loginGoogle">Sign In</button>
-     </form>
+      <input type="email" v-model="email" placeholder="Type your email">
+      <input type="password" v-model="password" placeholder="Type your password">
+      <button>Sing In</button>
+      </form>
+      -->
+      <div class="login-facebook">
+      <h2>Login with Facebook</h2>
+      <button @click="loginGoogle">Sign In</button>
+      </div>
     </div>
-   
-  
+
   </div>
   </script>
 
@@ -166,21 +169,13 @@
   <div>
     <login-form @userdatarecive="getDataUser"></login-form>
     <chat-main 
-    :userData="auth"   
-   ></chat-main>
+    :userData="auth">
+    </chat-main>
   </div>
   </script>
 
-
-  <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase-app.js"></script>
-
-  <script src="https://www.gstatic.com/firebasejs/7.15.3/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.15.4/firebase-auth.js"></script>
   <script src="./build/js/vue.js"></script>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-
   <script src="./build/js/main.js"></script>
-
 </body>
 
 </html>

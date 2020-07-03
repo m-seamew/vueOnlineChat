@@ -1,5 +1,5 @@
 
-
+//Firebase auth
 const firebaseConfig = {
   apiKey: "AIzaSyAyBJA6eLY1amFa1FxRNQvk4t51eo4mu30",
   authDomain: "my-vue-project-52f12.firebaseapp.com",
@@ -30,10 +30,9 @@ let chatMain = {
       editingMessage: null,
       commentingMessage: null,
       messageCommentText: '',
-      massArr: [],
+      //nickname: null,
     }
   },
-
   methods: {
     storeMessage() {
       messagesRef.push({ 
@@ -46,7 +45,7 @@ let chatMain = {
       this.messageText = '';
     },
     sendCommentMessage() {
-       messagesRef.child(this.commentingMessage.id).child('comments').push({ 
+      messagesRef.child(this.commentingMessage.id).child('comments').push({ 
         text: this.messageCommentText,
         nickname: this.userData.providerData[0].displayName, token: this.userData.providerData[0].uid,
         photo: this.userData.photoURL,
@@ -61,7 +60,7 @@ let chatMain = {
         messagesRef.child(el.id).remove();
       }
       else{
-        messagesRef.child(el.id).update({text: "Text deleted by author", deleted: true});
+        messagesRef.child(el.id).update({ text:"Text deleted by author", deleted: true });
       } 
     },
     deleteCommentMessage(el, com){
@@ -71,7 +70,7 @@ let chatMain = {
       this.editingMessage = el;
       this.messageText = el.text;
     },
-     editCommentMessage(el) {
+    editCommentMessage(el) {
       this.commentingMessage = el;
       this.messageCommentText = el.text;
     },
@@ -94,22 +93,18 @@ let chatMain = {
       messagesRef.child(el.id).child(`comments/${this.commentingMessage.id}`).update({ text: this.messageCommentText});
       this.cancelCommentMessage();
     }
-
   },
-
   created() {
     messagesRef.on('child_added', shapshot => {
-      this.messages.push({ ...shapshot.val(), id: shapshot.key, comments: {}})
+      this.messages.push({ ...shapshot.val(), id: shapshot.key, comments: {}});
        
       messagesRef.child(`${shapshot.key}`).child('comments').on('child_added', shap => {
-      let addComent = this.messages.find(el=> el.id === shapshot.key);
-      
-      let temp = this.messages[this.messages.indexOf(addComent)].comments;
-
-      temp[shap.key] = {...shap.val(), id: shap.key};
+        let addComent = this.messages.find(el=> el.id === shapshot.key);
+        let temp = this.messages[this.messages.indexOf(addComent)].comments;
+        temp[shap.key] = {...shap.val(), id: shap.key};
       });
 
-      if (this.nickname !== shapshot.val().nickname) {
+      if (this.userData.displayName !== shapshot.val().nickname) {
         nativeToast({
           message: `new message by ${shapshot.val().nickname}`,
           position: 'top',
@@ -117,7 +112,6 @@ let chatMain = {
         });
       }  
     });
-   
        
     messagesRef.on('child_removed', snapshot => {
       let removedItem = this.messages.find(el => el.id === snapshot.key);
@@ -131,20 +125,16 @@ let chatMain = {
 
       messagesRef.child(`${snapshot.key}`).child('comments').on('child_added', shap => {
         updatedItem.comments[shap.key].text = shap.val().text;
-        //updatedItem.deleted = snapshot.val().deleted;
-        });
+      });
 
-        messagesRef.child(`${snapshot.key}`).child('comments').on('child_removed', shap => {
-          console.log(shap.key);
-         
-          let findMessage = this.messages.find(el=>el.id == snapshot.key);
+      messagesRef.child(`${snapshot.key}`).child('comments').on('child_removed', shap => {   
+        let findMessage = this.messages.find(el=>el.id == snapshot.key);
 
-          delete findMessage.comments[key=`${shap.key}`];
-
-          this.messages.splice(this.messages.indexOf(updatedItem), 1, findMessage);
-          });  
+        delete findMessage.comments[key=`${shap.key}`];
+        this.messages.splice(this.messages.indexOf(updatedItem), 1, findMessage);
+      });  
     });
-    }, 
+  }, 
 };
 
 let loginForm = {
@@ -154,8 +144,8 @@ let loginForm = {
      // email: '',
      // password: '',
       authUser: '',
-      userName: null,
-      userPhoto: null,
+     //userName: null,
+     //userPhoto: null,
      // newPassword: null,
     }
   },
@@ -178,24 +168,22 @@ let loginForm = {
 
       firebase.auth().signInWithPopup(provider) 
       .catch(error => console.log('Error:'+error.message))
-      .then(data => {
-        console.log(data.credential.accessToken);
-      });
+      .then(data => console.log(data.credential.accessToken));
     },
+    /*
     changeUserData(){
       this.authUser.updateProfile({
         displayName: this.userName,
         photoURL: this.userPhoto,
       }) 
     },
-    /*
     changeEmail(){
       this.authUser.updateEmail(this.email)
     },
     changePassword(){
       this.authUser.updatePassword(this.newPassword)
       .then(() => this.newPassword = '')
-      .catch(error => alert('Error:'+error.message))
+      .catch(error => console.log('Error:'+error.message))
     },
     linkGoogle(){
       const provider = new firebase.auth.GoogleAuthProvider()
@@ -220,30 +208,28 @@ let loginForm = {
     firebase.auth().onAuthStateChanged(user => { 
       this.authUser = user;
       this.$emit('userdatarecive', this.authUser);
+
       if(user){
       this.dispalyName = user.userName;
       this.photoUrl = user.userPhoto;}
     });
-
-    let us = firebase.auth().currentUser;
-    console.log(us);
   }
 };
 
-Vue.component('chat-module', {
+Vue.component('chat-module',{
   template: '#chat-module-template',
   data: function () {
-  return {
-    auth: {},
-  }},
+    return {
+      auth: {},
+    }
+  },
   components:{
     'login-form': loginForm,
     'chat-main': chatMain,
   },
   methods: {
-    getDataUser(data) {
+    getDataUser(data){
       this.auth = data;
-      console.log(this.auth);
     }
   }
 });
