@@ -133,8 +133,7 @@ let chatMain = {
 
       messagesRef.child(`${snapshot.key}`).child('comments').on('child_removed', shap => {   
         let findMessage = this.messages.find(el=>el.id == snapshot.key);
-
-        delete findMessage.comments[key=`${shap.key}`];
+       // delete findMessage.comments[key=`${shap.key}`];
         this.messages.splice(this.messages.indexOf(updatedItem), 1, findMessage);
       });  
     });
