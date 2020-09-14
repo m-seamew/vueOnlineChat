@@ -7,7 +7,7 @@
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://unpkg.com/native-toast@1.2.1/dist/native-toast.css">
-  <script src="https://unpkg.com/native-toast@1.2.1/dist/native-toast.js"></script>
+ 
   <link rel="stylesheet" href="./build/css/main.css">
 
   <!-- Vue -->
@@ -41,7 +41,7 @@
           <textarea v-else v-model="messageText" class="form-control"></textarea>
 
           <div v-if="message !== commentingMessage">
-            <a v-if="message !== editingMessage" @click.prevent="commentMessage(message)" href="#" class="card-link">Comment</a>
+            <a v-if="message !== editingMessage && userData" @click.prevent="commentMessage(message)" href="#" class="card-link">Comment</a>
           </div>
           <div v-else>
             <textarea v-model="messageCommentText" class="form-control" placeholder="Write your comment"></textarea>
@@ -173,7 +173,8 @@
     </chat-main>
   </div>
   </script>
-
+  <script src="https://unpkg.com/native-toast@1.2.1/dist/native-toast.js"></script>
+  
   <script src="./build/js/vue.js"></script>
   <script src="./build/js/main.js"></script>
 </body>

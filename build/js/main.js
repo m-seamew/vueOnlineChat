@@ -64,6 +64,7 @@ let chatMain = {
       } 
     },
     deleteCommentMessage(el, com){
+      console.log(com, el)
       messagesRef.child(el.id).child('comments').child(com.id).remove();
     }, 
     editMessage(el) {
@@ -103,14 +104,17 @@ let chatMain = {
         let temp = this.messages[this.messages.indexOf(addComent)].comments;
         temp[shap.key] = {...shap.val(), id: shap.key};
       });
-
-      if (this.userData.displayName !== shapshot.val().nickname) {
-        nativeToast({
+      
+      if(this.userData !== null){
+      
+          if (this.userData.displayName !== shapshot.val().nickname) {
+          nativeToast({
           message: `new message by ${shapshot.val().nickname}`,
           position: 'top',
           type: 'success'
-        });
-      }  
+          });
+          }
+      } 
     });
        
     messagesRef.on('child_removed', snapshot => {
